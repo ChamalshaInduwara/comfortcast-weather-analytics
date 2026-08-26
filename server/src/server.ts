@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+
 import { getWeatherByCityId } from "./services/weather.service.js";
 import { getCityCodes } from "./services/city.service.js";
 
@@ -49,6 +50,27 @@ app.get("/api/weather/test", async (req, res) => {
 
     return res.status(500).json({
       message: "Failed to fetch weather data",
+    });
+  }
+});
+
+app.get("/api/weather/all", async (req, res) => {
+  try {
+    const cityCodes = getCityCodes();
+
+    const weatherData = await Promise.all(
+      cityCodes.map((cityId) => getWeatherByCityId(cityId))
+    );
+
+    return res.json({
+      count: weatherData.length,
+      cities: weatherData,
+    });
+  } catch (error) {
+    console.error("Failed to fetch weather data:", error);
+
+    return res.status(500).json({
+      message: "Failed to fetch weather data for cities",
     });
   }
 });
