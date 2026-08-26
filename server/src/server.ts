@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-
 import { getWeatherByCityId } from "./services/weather.service.js";
+import { getCityCodes } from "./services/city.service.js";
 
 dotenv.config();
 
