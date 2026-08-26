@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { getWeatherByCityId } from "./services/weather.service.js";
 import { getCityCodes } from "./services/city.service.js";
 import { calculateComfortIndex } from "./services/comfort.service.js";
+import { getCacheStatus } from "./services/cache.service.js";
 
 dotenv.config();
 
@@ -125,6 +126,12 @@ app.get("/api/weather/analytics", async (req, res) => {
       message: "Failed to generate weather analytics",
     });
   }
+});
+
+app.get("/api/cache/status", (req, res) => {
+  const status = getCacheStatus();
+
+  return res.json(status);
 });
 
 app.listen(PORT, () => {
