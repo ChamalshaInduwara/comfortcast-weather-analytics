@@ -20,6 +20,23 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+app.get("/api/cities", (req, res) => {
+  try {
+    const cityCodes = getCityCodes();
+
+    return res.json({
+      count: cityCodes.length,
+      cityCodes,
+    });
+  } catch (error) {
+    console.error("Failed to read cities:", error);
+
+    return res.status(500).json({
+      message: "Failed to read cities.json",
+    });
+  }
+});
+
 app.get("/api/weather/test", async (req, res) => {
   try {
     const cityId = 2172797;
