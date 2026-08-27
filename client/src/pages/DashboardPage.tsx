@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 
-import {
-  getWeatherAnalytics,
-} from "../services/weatherApi";
+import CityCard from "../components/CityCard";
+import { getWeatherAnalytics } from "../services/weatherApi";
 
-import type {
-  WeatherCity,
-} from "../types/weather";
+import type { WeatherCity } from "../types/weather";
 
 function DashboardPage() {
   const [cities, setCities] = useState<WeatherCity[]>([]);
@@ -17,6 +14,7 @@ function DashboardPage() {
     const loadWeather = async () => {
       try {
         setLoading(true);
+        setError("");
 
         const data = await getWeatherAnalytics();
 
@@ -24,9 +22,7 @@ function DashboardPage() {
       } catch (err) {
         console.error(err);
 
-        setError(
-          "Unable to load weather analytics."
-        );
+        setError("Unable to load weather analytics.");
       } finally {
         setLoading(false);
       }
@@ -36,42 +32,61 @@ function DashboardPage() {
   }, []);
 
   if (loading) {
-    return <p>Loading weather analytics...</p>;
+    return (
+      <div className="page-message">
+        <p>Loading weather analytics...</p>
+      </div>
+    );
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return (
+      <div className="page-message error-message">
+        <h2>Something went wrong</h2>
+        <p>{error}</p>
+      </div>
+    );
   }
 
   return (
-    <main>
-      <h1>ComfortCast</h1>
-
-      <p>Weather Comfort Analytics</p>
-
-      <p>Total cities: {cities.length}</p>
-
-      {cities.map((city) => (
-        <div key={city.cityId}>
-          <h2>
-            #{city.rank} {city.cityName}
-          </h2>
-
-          <p>
-            {city.description}
+    <main className="dashboard">
+      <header className="dashboard-header">
+        <div>
+          <p className="eyebrow">
+            Weather Analytics
           </p>
 
-          <p>
-            Temperature: {city.temperature}°C
-          </p>
+          <h1>ComfortCast</h1>
 
-          <p>
-            Comfort Score: {city.comfortScore}/100
+          <p className="dashboard-subtitle">
+            Compare current weather conditions and discover
+            the most comfortable cities.
           </p>
-
-          <hr />
         </div>
-      ))}
+
+        <div className="city-count">
+          <strong>{cities.length}</strong>
+          <span>Cities analysed</span>
+        </div>
+      </header>
+
+      <section className="ranking-heading">
+        <div>
+          <h2>Comfort Ranking</h2>
+          <p>
+            Ranked from most comfortable to least comfortable.
+          </p>
+        </div>
+      </section>
+
+      <section className="city-grid">
+        {cities.map((city) => (
+          <CityCard
+            key={city.cityId}
+            city={city}
+          />
+        ))}
+      </section>
     </main>
   );
 }
