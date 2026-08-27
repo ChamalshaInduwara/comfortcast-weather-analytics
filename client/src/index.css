@@ -254,3 +254,39 @@ body {
     grid-template-columns: 1fr;
   }
 }
+.dashboard-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-email {
+  color: #687386;
+  font-size: 0.85rem;
+}
+
+.logout-button {
+  padding: 10px 16px;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  background: white;
+  color: #172033;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background: #f8fafc;
+}
+
+@media screen and (max-width: 768px) {
+  .dashboard-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .user-email {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

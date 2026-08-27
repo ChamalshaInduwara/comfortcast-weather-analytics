@@ -4,17 +4,23 @@ import type {
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export const getWeatherAnalytics =
-  async (): Promise<WeatherAnalyticsResponse> => {
-    const response = await fetch(
-      `${API_URL}/api/weather/analytics`
-    );
-
-    if (!response.ok) {
-      throw new Error(
-        "Failed to fetch weather analytics"
-      );
+export const getWeatherAnalytics = async (
+  accessToken: string
+): Promise<WeatherAnalyticsResponse> => {
+  const response = await fetch(
+    `${API_URL}/api/weather/analytics`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     }
+  );
 
-    return response.json();
-  };
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch weather analytics: ${response.status}`
+    );
+  }
+
+  return response.json();
+};

@@ -2,12 +2,28 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 
+import type { Request, Response, NextFunction } from "express";
+
 import { getWeatherByCityId } from "./services/weather.service.js";
 import { getCityCodes } from "./services/city.service.js";
 import { calculateComfortIndex } from "./services/comfort.service.js";
 import { getCacheStatus } from "./services/cache.service.js";
+import { auth } from "express-oauth2-jwt-bearer";
 
 dotenv.config();
+
+const auth0Domain = process.env.AUTH0_DOMAIN;
+const auth0Audience = process.env.AUTH0_AUDIENCE;
+
+if (!auth0Domain || !auth0Audience) {
+  throw new Error("Auth0 environment variables are missing.");
+}
+
+const checkJwt = auth({
+  audience: auth0Audience,
+  issuerBaseURL: `https://${auth0Domain}`,
+  tokenSigningAlg: "RS256",
+});
 
 const app = express();
 
@@ -77,7 +93,7 @@ app.get("/api/weather/all", async (req, res) => {
   }
 });
 
-app.get("/api/weather/analytics", async (req, res) => {
+app.get("/api/weather/analytics", checkJwt, async (req, res) => {
   try {
     const cityCodes = getCityCodes();
 
@@ -128,10 +144,27 @@ app.get("/api/weather/analytics", async (req, res) => {
   }
 });
 
-app.get("/api/cache/status", (req, res) => {
+app.get("/api/cache/status", checkJwt, (req, res) => {
   const status = getCacheStatus();
 
   return res.json(status);
+});
+
+// Error handler
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (err.status === 401) {
+    return res.status(401).json({
+      status: 401,
+      message: "Unauthorized",
+    });
+  }
+
+  console.error("Server error:", err);
+
+  return res.status(err.status || 500).json({
+    status: err.status || 500,
+    message: "Internal server error",
+  });
 });
 
 app.listen(PORT, () => {
