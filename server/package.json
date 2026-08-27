@@ -5,11 +5,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-  "dev": "tsx watch src/server.ts",
-  "start": "tsx src/server.ts",
-  "test": "vitest run",
-  "test:watch": "vitest"
-},
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -17,7 +17,8 @@
     "axios": "^1.20.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "express-oauth2-jwt-bearer": "^1.10.0"
   },
   "devDependencies": {
     "@ljharb/tsconfig": "^0.3.2",
