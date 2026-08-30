@@ -1,6 +1,8 @@
 # ComfortCast
 
-ComfortCast is a full-stack weather analytics application for comparing live conditions across ten cities. It calculates a backend-owned Comfort Index, ranks the cities, and presents the results in a responsive authenticated dashboard.
+ComfortCast is a full-stack weather analytics application for comparing live weather conditions across ten cities. It retrieves data from OpenWeatherMap, calculates a backend-owned Comfort Index, ranks the cities, and presents the results in a responsive Auth0-protected dashboard.
+
+This project was built as a student-friendly implementation of the Fidenz Trainee Software Engineer technical assessment. The design favors understandable application code, a small service layer, and explicit trade-offs over unnecessary infrastructure.
 
 ## Features
 
@@ -13,6 +15,7 @@ ComfortCast is a full-stack weather analytics application for comparing live con
 - City search/filter and sorting by rank, temperature, or name
 - Persistent light/dark mode
 - Vitest unit tests for the Comfort Index
+- Lazy-loaded forecast graph to keep the initial dashboard bundle smaller
 
 ## Tech Stack
 
@@ -30,8 +33,10 @@ comfortcast-weather-analytics/
 |  |  |- components/
 |  |  |- pages/
 |  |  |- services/
+|  |  |- hooks/
 |  |  |- types/
 |  |  |- App.tsx
+|  |  |- App.css
 |  |  |- main.tsx
 |  |  `- index.css
 |  `- package.json
@@ -91,7 +96,8 @@ cd ../server && npm install
 
 ### Configure environment
 
-Create `client/.env` locally with the frontend configuration below:
+Create `client/.env` locally with the frontend configuration below. Do not
+commit this file:
 
 ```env
 VITE_API_URL=http://localhost:5000
@@ -100,7 +106,8 @@ VITE_AUTH0_CLIENT_ID=YOUR_AUTH0_CLIENT_ID
 VITE_AUTH0_AUDIENCE=https://comfortcast-api
 ```
 
-Create `server/.env` locally with the backend configuration below:
+Create `server/.env` locally with the backend configuration below. Do not
+commit this file:
 
 ```env
 PORT=5000
@@ -110,7 +117,26 @@ AUTH0_DOMAIN=YOUR_AUTH0_DOMAIN
 AUTH0_AUDIENCE=https://comfortcast-api
 ```
 
-Keep the Auth0 domain without `https://`. In Auth0, configure the callback and logout URLs for the client development origin, and keep public signup disabled and MFA compatible with the Auth0 tenant policy.
+Keep the Auth0 domain without `https://`.
+
+### OpenWeatherMap setup
+
+Create an OpenWeatherMap account and add the API key to `server/.env` as
+`OPENWEATHER_API_KEY`. The backend sends each numeric `CityCode` from
+`server/src/data/cities.json` to the current-weather and forecast endpoints with
+metric units.
+
+### Auth0 setup
+
+Create an Auth0 Single Page Application and an API whose audience matches
+`AUTH0_AUDIENCE`. Configure the client callback, logout, and allowed web origins
+for the Vite development URL. The backend validates JWT bearer tokens using the
+configured domain and audience.
+
+Public signup restriction and MFA are Auth0 tenant settings, not claims made by
+the source code. Before submission, verify that public signup is disabled, the
+reviewer account is authorized, email is verified, and the required MFA/email
+verification policy is enabled in the Auth0 dashboard.
 
 ### Run
 
@@ -139,11 +165,18 @@ npm run dev
 
 The frontend sends `Authorization: Bearer <token>`. Invalid city IDs return `400`, missing or invalid tokens return `401`, unknown paths return `404`, and upstream forecast failures remain isolated to the graph area.
 
+The health endpoint is intentionally public. Weather analytics, cache status,
+and forecast routes require a valid Auth0 access token.
+
 ## Caching Design and Trade-offs
 
 Raw current-weather responses are cached by city ID for exactly five minutes. The cache records hits and misses and is inspected through `/api/cache/status`. The ranked analytics response is cached separately for five minutes to avoid repeating processing. Forecast responses use their own five-minute in-memory cache and are transformed into the first eight three-hour points.
 
 All caches are process-local and disappear when the backend restarts. This keeps the assessment implementation simple and means changing the Comfort Index followed by a restart immediately recomputes rankings. A distributed cache would be more suitable for multiple backend instances or production deployments.
+
+The raw current-weather cache is the mandatory cache and is keyed by city ID.
+The processed analytics and forecast caches are separate so they do not mix raw
+OpenWeather responses with application-specific output.
 
 ## Testing and Builds
 
@@ -153,6 +186,8 @@ npm test
 npx tsc --noEmit
 
 cd ../client
+npm run lint
+npx tsc --noEmit
 npm run build
 ```
 
@@ -167,5 +202,22 @@ The tests cover ideal and uncomfortable conditions, score bounds, whole-number o
 - City configuration is parsed once at startup and requires at least ten unique positive numeric CityCode values.
 - Results depend on OpenWeatherMap availability, quota, and valid credentials.
 - In-memory caches are not shared across processes.
+- The forecast graph depends on OpenWeatherMap availability and valid Auth0
+  credentials, so its complete end-to-end behavior requires manual testing with
+  configured services.
 
-This project was created for the Fidenz Trainee Software Engineer technical assessment.
+## Assessment checklist
+
+Before submitting, manually verify:
+
+- Login, logout, refresh persistence, and MFA work in Auth0.
+- All ten cities load and show backend-calculated scores and ranks.
+- Search, sorting, dark mode, and the forecast city selector work on mobile.
+- The graph displays real forecast data for multiple cities.
+- An unauthenticated API request receives `401`.
+- The repository contains no real API keys, passwords, tokens, or committed
+  `.env` files.
+
+The current recording baseline intentionally uses only temperature, humidity,
+and wind speed. Any additional Comfort Index parameter must be added live
+during the required assessment recording, not before it.
