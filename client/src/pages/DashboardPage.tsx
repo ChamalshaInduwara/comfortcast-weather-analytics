@@ -1,11 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import CityCard from "../components/CityCard";
-import TemperatureTrendSection from "../components/TemperatureTrendSection";
 import { getWeatherAnalytics } from "../services/weatherApi";
 
 import type { WeatherCity } from "../types/weather";
+
+const TemperatureTrendSection = lazy(
+  () => import("../components/TemperatureTrendSection"),
+);
 
 function DashboardPage() {
   const [cities, setCities] = useState<WeatherCity[]>([]);
@@ -152,7 +155,11 @@ function DashboardPage() {
         </div>
       </header>
 
-      <TemperatureTrendSection cities={cities} />
+      <Suspense
+        fallback={<div className="trend-state">Loading forecast...</div>}
+      >
+        <TemperatureTrendSection cities={cities} />
+      </Suspense>
 
       <section className="ranking-heading">
         <div>

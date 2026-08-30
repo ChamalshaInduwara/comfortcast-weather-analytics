@@ -1285,6 +1285,21 @@ body.dark-mode .theme-button:hover {
   text-align: center;
 }
 
+.trend-retry-button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid currentColor;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.trend-retry-button:hover {
+  background: rgba(185, 28, 28, 0.08);
+}
+
 body.dark-mode .trend-card {
   border-color: #334155;
   background: #1e293b;

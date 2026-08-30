@@ -99,6 +99,10 @@ export async function getTemperatureTrend(
     };
   });
 
+  if (points.length < 8) {
+    throw new Error("OpenWeather returned fewer than 8 forecast points.");
+  }
+
   return {
     cityId: forecast.city.id,
     cityName: forecast.city.name,

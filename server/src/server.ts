@@ -19,10 +19,27 @@ dotenv.config();
 
 const auth0Domain = process.env.AUTH0_DOMAIN;
 const auth0Audience = process.env.AUTH0_AUDIENCE;
-const PORT = process.env.PORT || 5000;
+const port = Number(process.env.PORT ?? 5000);
+const clientOrigin = process.env.CLIENT_ORIGIN ?? "http://localhost:5173";
+const ANALYTICS_CACHE_TTL = 5 * 60 * 1000;
 
-if (!auth0Domain || !auth0Audience) {
+let analyticsCache: {
+  data: object;
+  expiresAt: number;
+} | null = null;
+
+if (!auth0Domain || !auth0Audience || !process.env.OPENWEATHER_API_KEY) {
   throw new Error("Required Auth0 environment variables are missing.");
+}
+
+if (!Number.isInteger(port) || port < 1 || port > 65535) {
+  throw new Error("PORT must be a valid integer between 1 and 65535.");
+}
+
+try {
+  new URL(clientOrigin);
+} catch {
+  throw new Error("CLIENT_ORIGIN must be a valid URL.");
 }
 
 /* =========================================================
@@ -41,7 +58,13 @@ const checkJwt = auth({
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: clientOrigin,
+    methods: ["GET"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 app.use(express.json());
 
 /* =========================================================
@@ -71,6 +94,10 @@ app.get("/api/health", (_req, res) => {
  */
 app.get("/api/weather/analytics", checkJwt, async (_req, res) => {
   try {
+    if (analyticsCache && analyticsCache.expiresAt > Date.now()) {
+      return res.json(analyticsCache.data);
+    }
+
     const cityCodes = getCityCodes();
 
     const weatherData = await Promise.all(
@@ -107,10 +134,17 @@ app.get("/api/weather/analytics", checkJwt, async (_req, res) => {
       rank: index + 1,
     }));
 
-    return res.json({
+    const response = {
       count: rankedCities.length,
       cities: rankedCities,
-    });
+    };
+
+    analyticsCache = {
+      data: response,
+      expiresAt: Date.now() + ANALYTICS_CACHE_TTL,
+    };
+
+    return res.json(response);
   } catch (error) {
     console.error("Failed to generate weather analytics:", error);
 
@@ -183,7 +217,10 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
     message?: string;
   };
 
-  const statusCode = error.statusCode ?? error.status ?? 500;
+  const requestedStatus = error.statusCode ?? error.status;
+  const statusCode = [400, 401, 404, 502].includes(requestedStatus ?? 0)
+    ? requestedStatus!
+    : 500;
 
   if (statusCode === 401) {
     return res.status(401).json({
@@ -204,6 +241,6 @@ app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
    START SERVER
 ========================================================= */
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });

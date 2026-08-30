@@ -36,15 +36,9 @@ function TemperatureTrendSection({ cities }: TemperatureTrendSectionProps) {
 
   const [error, setError] = useState<string | null>(null);
 
-  /*
-   * Automatically select the first city
-   * after dashboard data becomes available.
-   */
-  useEffect(() => {
-    if (cities.length > 0 && selectedCityId === null) {
-      setSelectedCityId(cities[0].cityId);
-    }
-  }, [cities, selectedCityId]);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const activeCityId = selectedCityId ?? cities[0]?.cityId ?? null;
 
   /*
    * Fetch only the selected city's forecast.
@@ -53,11 +47,12 @@ function TemperatureTrendSection({ cities }: TemperatureTrendSectionProps) {
    * component and does NOT break the dashboard.
    */
   useEffect(() => {
-    if (selectedCityId === null) {
+    if (activeCityId === null) {
       return;
     }
 
     let cancelled = false;
+    const controller = new AbortController();
 
     const loadTrend = async () => {
       try {
@@ -66,7 +61,11 @@ function TemperatureTrendSection({ cities }: TemperatureTrendSectionProps) {
 
         const accessToken = await getAccessTokenSilently();
 
-        const result = await fetchTemperatureTrend(selectedCityId, accessToken);
+        const result = await fetchTemperatureTrend(
+          activeCityId,
+          accessToken,
+          controller.signal,
+        );
 
         if (!cancelled) {
           setTrend(result);
@@ -76,7 +75,7 @@ function TemperatureTrendSection({ cities }: TemperatureTrendSectionProps) {
           err instanceof Error ? err.message : "Unknown forecast error";
 
         console.error(
-          `Temperature trend error for city ${selectedCityId}: ${message}`,
+          `Temperature trend error for city ${activeCityId}: ${message}`,
         );
 
         if (!cancelled) {
@@ -95,8 +94,9 @@ function TemperatureTrendSection({ cities }: TemperatureTrendSectionProps) {
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
-  }, [selectedCityId, getAccessTokenSilently]);
+  }, [activeCityId, getAccessTokenSilently, retryCount]);
 
   if (cities.length === 0) {
     return null;
@@ -118,7 +118,7 @@ function TemperatureTrendSection({ cities }: TemperatureTrendSectionProps) {
 
           <select
             id="trend-city"
-            value={selectedCityId ?? ""}
+            value={activeCityId ?? ""}
             onChange={(event) => setSelectedCityId(Number(event.target.value))}
           >
             {cities.map((city) => (
@@ -134,7 +134,19 @@ function TemperatureTrendSection({ cities }: TemperatureTrendSectionProps) {
         <div className="trend-state">Loading temperature trend...</div>
       )}
 
-      {!loading && error && <div className="trend-error">{error}</div>}
+      {!loading && error && (
+        <div className="trend-error" role="status" aria-live="polite">
+          <span>{error}</span>
+
+          <button
+            type="button"
+            className="trend-retry-button"
+            onClick={() => setRetryCount((count) => count + 1)}
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {!loading && !error && trend && trend.points.length > 0 && (
         <>

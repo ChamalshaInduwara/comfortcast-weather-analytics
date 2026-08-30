@@ -38,4 +38,37 @@ describe("calculateComfortIndex", () => {
 
     expect(Number.isInteger(score)).toBe(true);
   });
+
+  it("reduces comfort when temperature moves away from ideal", () => {
+    const ideal = calculateComfortIndex(22, 50, 2);
+    const hot = calculateComfortIndex(35, 50, 2);
+
+    expect(hot).toBeLessThan(ideal);
+  });
+
+  it("reduces comfort when humidity moves away from ideal", () => {
+    const ideal = calculateComfortIndex(22, 50, 2);
+    const humid = calculateComfortIndex(22, 90, 2);
+
+    expect(humid).toBeLessThan(ideal);
+  });
+
+  it("reduces comfort when wind moves away from ideal", () => {
+    const ideal = calculateComfortIndex(22, 50, 2);
+    const windy = calculateComfortIndex(22, 50, 12);
+
+    expect(windy).toBeLessThan(ideal);
+  });
+
+  it("heavily penalizes extremely hot conditions", () => {
+    const score = calculateComfortIndex(50, 50, 2);
+
+    expect(score).toBe(50);
+  });
+
+  it("returns a predictable score for a moderate variation", () => {
+    const score = calculateComfortIndex(24, 60, 4);
+
+    expect(score).toBe(82);
+  });
 });

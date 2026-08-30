@@ -3,6 +3,7 @@ import type { TemperatureTrendResponse } from "../types/forecast";
 export async function fetchTemperatureTrend(
   cityId: number,
   accessToken: string,
+  signal?: AbortSignal,
 ): Promise<TemperatureTrendResponse> {
   const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -12,6 +13,7 @@ export async function fetchTemperatureTrend(
 
   const response = await fetch(`${apiUrl}/api/weather/trend/${cityId}`, {
     method: "GET",
+    signal,
 
     headers: {
       Authorization: `Bearer ${accessToken}`,
