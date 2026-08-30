@@ -80,7 +80,7 @@ app.use(express.json());
 app.get("/api/health", (_req, res) => {
   return res.json({
     status: "ok",
-    message: "Fidenz Weather Analytics API is running",
+    message: "ComfortCast API is running",
   });
 });
 
