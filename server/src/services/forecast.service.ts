@@ -6,6 +6,7 @@ import type {
 } from "../types/forecast.types.js";
 
 const FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast";
+const FORECAST_TIMEOUT_MS = 10_000;
 
 const FORECAST_CACHE_TTL = 5 * 60 * 1000;
 
@@ -40,6 +41,7 @@ async function getRawForecast(
           appid: apiKey,
           units: "metric",
         },
+        timeout: FORECAST_TIMEOUT_MS,
       },
     );
 

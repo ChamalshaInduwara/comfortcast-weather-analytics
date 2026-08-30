@@ -29,7 +29,9 @@ let analyticsCache: {
 } | null = null;
 
 if (!auth0Domain || !auth0Audience || !process.env.OPENWEATHER_API_KEY) {
-  throw new Error("Required Auth0 environment variables are missing.");
+  throw new Error(
+    "Required AUTH0_DOMAIN, AUTH0_AUDIENCE, and OPENWEATHER_API_KEY environment variables are missing.",
+  );
 }
 
 if (!Number.isInteger(port) || port < 1 || port > 65535) {

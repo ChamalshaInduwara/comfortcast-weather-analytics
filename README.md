@@ -91,7 +91,7 @@ cd ../server && npm install
 
 ### Configure environment
 
-Create `client/.env` with the frontend configuration:
+Create `client/.env` locally with the frontend configuration below:
 
 ```env
 VITE_API_URL=http://localhost:5000
@@ -100,7 +100,7 @@ VITE_AUTH0_CLIENT_ID=YOUR_AUTH0_CLIENT_ID
 VITE_AUTH0_AUDIENCE=https://comfortcast-api
 ```
 
-Create `server/.env` with the backend configuration:
+Create `server/.env` locally with the backend configuration below:
 
 ```env
 PORT=5000
