@@ -3,6 +3,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 import CityCard from "../components/CityCard";
 import { getWeatherAnalytics } from "../services/weatherApi";
+import { useTheme } from "../hooks/useTheme";
 
 import type { WeatherCity } from "../types/weather";
 
@@ -18,21 +19,8 @@ function DashboardPage() {
   const [sortBy, setSortBy] = useState<
     "rank" | "temperature-high" | "temperature-low" | "name"
   >("rank");
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem("comfortcast-theme") === "dark";
-  });
-
   const { getAccessTokenSilently, logout, user } = useAuth0();
-
-  useEffect(() => {
-    document.body.classList.toggle("dark-mode", darkMode);
-
-    localStorage.setItem("comfortcast-theme", darkMode ? "dark" : "light");
-
-    return () => {
-      document.body.classList.remove("dark-mode");
-    };
-  }, [darkMode]);
+  const { darkMode, toggleTheme } = useTheme();
 
   useEffect(() => {
     const loadWeather = async () => {
@@ -94,6 +82,19 @@ function DashboardPage() {
     });
   }, [cities, searchTerm, sortBy]);
 
+  const dashboardSummary = useMemo(() => {
+    const topCity = cities.find((city) => city.rank === 1);
+    const averageTemperature = cities.length
+      ? cities.reduce((total, city) => total + city.temperature, 0) /
+        cities.length
+      : 0;
+
+    return {
+      topCity,
+      averageTemperature,
+    };
+  }, [cities]);
+
   if (loading) {
     return (
       <div className="page-message">
@@ -139,7 +140,9 @@ function DashboardPage() {
             <button
               type="button"
               className="theme-button"
-              onClick={() => setDarkMode((current) => !current)}
+              onClick={toggleTheme}
+              aria-label={`Switch to ${darkMode ? "light" : "dark"} mode`}
+              aria-pressed={darkMode}
             >
               {darkMode ? "☀️ Light" : "🌙 Dark"}
             </button>
@@ -154,6 +157,39 @@ function DashboardPage() {
           </div>
         </div>
       </header>
+
+      <section className="summary-grid" aria-label="Weather summary">
+        <div className="summary-card">
+          <span className="summary-label">Cities analysed</span>
+          <strong>{cities.length}</strong>
+          <span className="summary-note">Live locations</span>
+        </div>
+
+        <div className="summary-card summary-card-highlight">
+          <span className="summary-label">Most comfortable</span>
+          <strong>{dashboardSummary.topCity?.cityName ?? "-"}</strong>
+          <span className="summary-note">
+            {dashboardSummary.topCity
+              ? `Rank #${dashboardSummary.topCity.rank}`
+              : "Awaiting data"}
+          </span>
+        </div>
+
+        <div className="summary-card">
+          <span className="summary-label">Top comfort score</span>
+          <strong>
+            {dashboardSummary.topCity?.comfortScore ?? "-"}
+            {dashboardSummary.topCity && <small>/100</small>}
+          </strong>
+          <span className="summary-note">Backend calculated</span>
+        </div>
+
+        <div className="summary-card">
+          <span className="summary-label">Average temperature</span>
+          <strong>{dashboardSummary.averageTemperature.toFixed(1)}°C</strong>
+          <span className="summary-note">Across loaded cities</span>
+        </div>
+      </section>
 
       <Suspense
         fallback={<div className="trend-state">Loading forecast...</div>}

@@ -114,6 +114,61 @@ a:focus-visible {
   line-height: 1.7;
 }
 
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 36px;
+}
+
+.summary-card {
+  min-width: 0;
+  padding: 18px 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(30, 41, 59, 0.04);
+}
+
+.summary-card-highlight {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.summary-label,
+.summary-note {
+  display: block;
+  color: #687386;
+  font-size: 0.76rem;
+}
+
+.summary-label {
+  margin-bottom: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.summary-card strong {
+  display: block;
+  overflow: hidden;
+  color: #172033;
+  font-size: 1.45rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.summary-card strong small {
+  margin-left: 3px;
+  color: #687386;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.summary-note {
+  margin-top: 7px;
+}
+
 /* =========================================================
    DASHBOARD USER SECTION
 ========================================================= */
@@ -377,6 +432,14 @@ body.dark-mode .no-results p {
   font-size: 0.8rem;
 }
 
+.comfort-score small {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
 .weather-details {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -605,6 +668,7 @@ body.dark-mode .no-results p {
 ========================================================= */
 
 .auth-login {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -615,6 +679,30 @@ body.dark-mode .no-results p {
 .auth-login-inner {
   width: 100%;
   max-width: 390px;
+}
+
+.auth-theme-button {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #172033;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.auth-theme-button:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
 }
 
 .auth-mobile-brand {
@@ -733,6 +821,64 @@ body.dark-mode .no-results p {
   text-align: center;
 }
 
+body.dark-mode .auth-page {
+  background:
+    radial-gradient(
+      circle at 10% 15%,
+      rgba(37, 99, 235, 0.14),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 90% 90%,
+      rgba(14, 165, 233, 0.1),
+      transparent 30%
+    ),
+    #020617;
+}
+
+body.dark-mode .auth-shell {
+  border-color: #334155;
+  background: #111827;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .auth-login {
+  background: #111827;
+}
+
+body.dark-mode .auth-theme-button {
+  border-color: #475569;
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+body.dark-mode .auth-theme-button:hover {
+  border-color: #64748b;
+  background: #334155;
+}
+
+body.dark-mode .auth-login h2 {
+  color: #f8fafc;
+}
+
+body.dark-mode .auth-description {
+  color: #94a3b8;
+}
+
+body.dark-mode .auth-security {
+  border-color: #334155;
+  background: #1e293b;
+}
+
+body.dark-mode .auth-security strong {
+  color: #f8fafc;
+}
+
+body.dark-mode .auth-security p,
+body.dark-mode .auth-note {
+  color: #94a3b8;
+}
+
 /* =========================================================
    LARGE TABLET / SMALL LAPTOP
    1024px AND BELOW
@@ -848,6 +994,11 @@ body.dark-mode .no-results p {
     grid-template-columns: 1fr;
   }
 
+  .summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 30px;
+  }
+
   .ranking-heading h2 {
     font-size: 1.45rem;
   }
@@ -863,6 +1014,10 @@ body.dark-mode .no-results p {
 ========================================================= */
 
 @media screen and (max-width: 600px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
   .auth-page {
     display: block;
     min-height: 100vh;
@@ -899,6 +1054,11 @@ body.dark-mode .no-results p {
     margin: 0 auto;
   }
 
+  .auth-theme-button {
+    top: 20px;
+    right: 22px;
+  }
+
   .auth-mobile-brand {
     display: flex;
     align-items: center;
@@ -906,6 +1066,10 @@ body.dark-mode .no-results p {
     margin-bottom: 64px;
     color: #0f172a;
     font-weight: 750;
+  }
+
+  body.dark-mode .auth-mobile-brand {
+    color: #f8fafc;
   }
 
   .auth-logo.small {
@@ -1133,7 +1297,8 @@ body.dark-mode .dashboard {
 
 body.dark-mode .dashboard-header h1,
 body.dark-mode .ranking-heading h2,
-body.dark-mode .city-card h2 {
+body.dark-mode .city-card h2,
+body.dark-mode .summary-card strong {
   color: #f8fafc;
 }
 
@@ -1145,10 +1310,22 @@ body.dark-mode .user-email {
 }
 
 body.dark-mode .city-card,
-body.dark-mode .city-count {
+body.dark-mode .city-count,
+body.dark-mode .summary-card {
   border-color: #334155;
   background: #1e293b;
   box-shadow: none;
+}
+
+body.dark-mode .summary-card-highlight {
+  border-color: #1d4ed8;
+  background: #172554;
+}
+
+body.dark-mode .summary-label,
+body.dark-mode .summary-note,
+body.dark-mode .summary-card strong small {
+  color: #94a3b8;
 }
 
 body.dark-mode .city-card:hover {

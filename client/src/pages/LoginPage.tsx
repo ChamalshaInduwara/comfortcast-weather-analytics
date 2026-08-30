@@ -1,7 +1,10 @@
 import { useAuth0 } from "@auth0/auth0-react";
 
+import { useTheme } from "../hooks/useTheme";
+
 function LoginPage() {
   const { loginWithRedirect, isLoading } = useAuth0();
+  const { darkMode, toggleTheme } = useTheme();
 
   const handleLogin = async () => {
     await loginWithRedirect();
@@ -14,10 +17,7 @@ function LoginPage() {
         <div className="auth-visual">
           <div className="auth-brand">
             <div className="auth-logo">
-              <svg
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   d="M3 15.5A4.5 4.5 0 0 1 7.5 11h.4A6 6 0 0 1 19.5 13a3.5 3.5 0 0 1-.5 7H7a4 4 0 0 1-4-4v-.5Z"
                   fill="none"
@@ -40,9 +40,7 @@ function LoginPage() {
           </div>
 
           <div className="auth-visual-content">
-            <span className="auth-pill">
-              Live Weather Analytics
-            </span>
+            <span className="auth-pill">Live Weather Analytics</span>
 
             <h1>
               Understand weather.
@@ -50,9 +48,9 @@ function LoginPage() {
             </h1>
 
             <p>
-              Compare real-time weather conditions across
-              cities using a custom Comfort Index built from
-              temperature, humidity and wind conditions.
+              Compare real-time weather conditions across cities using a custom
+              Comfort Index built from temperature, humidity and wind
+              conditions.
             </p>
 
             <div className="auth-feature-grid">
@@ -82,12 +80,19 @@ function LoginPage() {
         {/* Right login panel */}
         <div className="auth-login">
           <div className="auth-login-inner">
+            <button
+              type="button"
+              className="auth-theme-button"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${darkMode ? "light" : "dark"} mode`}
+              aria-pressed={darkMode}
+            >
+              {darkMode ? "☀ Light" : "☾ Dark"}
+            </button>
+
             <div className="auth-mobile-brand">
               <div className="auth-logo small">
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     d="M3 15.5A4.5 4.5 0 0 1 7.5 11h.4A6 6 0 0 1 19.5 13a3.5 3.5 0 0 1-.5 7H7a4 4 0 0 1-4-4v-.5Z"
                     fill="none"
@@ -102,16 +107,13 @@ function LoginPage() {
               <span>ComfortCast</span>
             </div>
 
-            <p className="auth-eyebrow">
-              Welcome back
-            </p>
+            <p className="auth-eyebrow">Welcome back</p>
 
             <h2>Sign in to your dashboard</h2>
 
             <p className="auth-description">
-              Access ranked weather analytics and discover
-              which cities currently offer the most
-              comfortable conditions.
+              Access ranked weather analytics and discover which cities
+              currently offer the most comfortable conditions.
             </p>
 
             <button
@@ -121,16 +123,11 @@ function LoginPage() {
               disabled={isLoading}
             >
               <span>
-                {isLoading
-                  ? "Redirecting..."
-                  : "Continue to secure login"}
+                {isLoading ? "Redirecting..." : "Continue to secure login"}
               </span>
 
               {!isLoading && (
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     d="M5 12h14M13 6l6 6-6 6"
                     fill="none"
@@ -145,10 +142,7 @@ function LoginPage() {
 
             <div className="auth-security">
               <div className="auth-security-icon">
-                <svg
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path
                     d="M12 3 5 6v5c0 4.5 2.7 8 7 10 4.3-2 7-5.5 7-10V6l-7-3Z"
                     fill="none"
@@ -170,10 +164,7 @@ function LoginPage() {
 
               <div>
                 <strong>Secure authentication</strong>
-                <p>
-                  Protected with Auth0 and multi-factor
-                  authentication.
-                </p>
+                <p>Protected with Auth0 and multi-factor authentication.</p>
               </div>
             </div>
 
