@@ -1,23 +1,39 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import { auth } from "express-oauth2-jwt-bearer";
 
-import type { Request, Response, NextFunction } from "express";
+import type {
+  Request,
+  Response,
+  NextFunction,
+} from "express";
 
 import { getWeatherByCityId } from "./services/weather.service.js";
 import { getCityCodes } from "./services/city.service.js";
 import { calculateComfortIndex } from "./services/comfort.service.js";
 import { getCacheStatus } from "./services/cache.service.js";
-import { auth } from "express-oauth2-jwt-bearer";
 
 dotenv.config();
 
+/* =========================================================
+   ENVIRONMENT VARIABLES
+========================================================= */
+
 const auth0Domain = process.env.AUTH0_DOMAIN;
 const auth0Audience = process.env.AUTH0_AUDIENCE;
+const PORT = process.env.PORT || 5000;
 
 if (!auth0Domain || !auth0Audience) {
-  throw new Error("Auth0 environment variables are missing.");
+  throw new Error(
+    "Required Auth0 environment variables are missing.",
+  );
 }
+
+
+/* =========================================================
+   AUTH0 JWT VALIDATION
+========================================================= */
 
 const checkJwt = auth({
   audience: auth0Audience,
@@ -25,148 +41,182 @@ const checkJwt = auth({
   tokenSigningAlg: "RS256",
 });
 
-const app = express();
 
-const PORT = process.env.PORT || 5000;
+/* =========================================================
+   EXPRESS APPLICATION
+========================================================= */
+
+const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.get("/api/health", (req, res) => {
+
+/* =========================================================
+   PUBLIC ROUTES
+========================================================= */
+
+/**
+ * Health check endpoint.
+ * This route intentionally remains public.
+ */
+app.get("/api/health", (_req, res) => {
   return res.json({
     status: "ok",
     message: "Fidenz Weather Analytics API is running",
   });
 });
 
-app.get("/api/cities", (req, res) => {
-  try {
-    const cityCodes = getCityCodes();
 
-    return res.json({
-      count: cityCodes.length,
-      cityCodes,
-    });
-  } catch (error) {
-    console.error("Failed to read cities:", error);
+/* =========================================================
+   PROTECTED WEATHER ANALYTICS
+========================================================= */
 
-    return res.status(500).json({
-      message: "Failed to read cities.json",
-    });
-  }
-});
+/**
+ * Retrieves weather data for all configured cities,
+ * calculates the Comfort Index on the backend,
+ * sorts the cities by comfort score,
+ * and assigns ranking positions.
+ */
+app.get(
+  "/api/weather/analytics",
+  checkJwt,
+  async (_req, res) => {
+    try {
+      const cityCodes = getCityCodes();
 
-app.get("/api/weather/test", async (req, res) => {
-  try {
-    const cityId = 2172797;
-
-    const weather = await getWeatherByCityId(cityId);
-
-    return res.json(weather);
-  } catch (error) {
-    console.error("Weather API error:", error);
-
-    return res.status(500).json({
-      message: "Failed to fetch weather data",
-    });
-  }
-});
-
-app.get("/api/weather/all", async (req, res) => {
-  try {
-    const cityCodes = getCityCodes();
-
-    const weatherData = await Promise.all(
-      cityCodes.map((cityId) => getWeatherByCityId(cityId)),
-    );
-
-    return res.json({
-      count: weatherData.length,
-      cities: weatherData,
-    });
-  } catch (error) {
-    console.error("Failed to fetch weather data:", error);
-
-    return res.status(500).json({
-      message: "Failed to fetch weather data for cities",
-    });
-  }
-});
-
-app.get("/api/weather/analytics", checkJwt, async (req, res) => {
-  try {
-    const cityCodes = getCityCodes();
-
-    const weatherData = await Promise.all(
-      cityCodes.map((cityId) => getWeatherByCityId(cityId)),
-    );
-
-    const analytics = weatherData.map((weather) => {
-      const comfortScore = calculateComfortIndex(
-        weather.main.temp,
-        weather.main.humidity,
-        weather.wind.speed,
+      const weatherData = await Promise.all(
+        cityCodes.map((cityId) =>
+          getWeatherByCityId(cityId),
+        ),
       );
 
-      return {
-        cityId: weather.id,
-        cityName: weather.name,
-        description: weather.weather[0]?.description ?? "Unknown",
+      const analytics = weatherData.map((weather) => {
+        const comfortScore = calculateComfortIndex(
+          weather.main.temp,
+          weather.main.humidity,
+          weather.wind.speed,
+        );
 
-        temperature: weather.main.temp,
-        humidity: weather.main.humidity,
-        pressure: weather.main.pressure,
-        windSpeed: weather.wind.speed,
-        cloudiness: weather.clouds.all,
-        visibility: weather.visibility,
+        return {
+          cityId: weather.id,
+          cityName: weather.name,
+          description:
+            weather.weather[0]?.description ?? "Unknown",
 
-        comfortScore,
-      };
-    });
+          temperature: weather.main.temp,
+          humidity: weather.main.humidity,
+          pressure: weather.main.pressure,
+          windSpeed: weather.wind.speed,
+          cloudiness: weather.clouds.all,
+          visibility: weather.visibility,
 
-    analytics.sort((a, b) => b.comfortScore - a.comfortScore);
+          comfortScore,
+        };
+      });
 
-    const rankedCities = analytics.map((city, index) => ({
-      ...city,
-      rank: index + 1,
-    }));
+      analytics.sort(
+        (a, b) =>
+          b.comfortScore - a.comfortScore,
+      );
 
-    return res.json({
-      count: rankedCities.length,
-      cities: rankedCities,
-    });
-  } catch (error) {
-    console.error("Failed to generate weather analytics:", error);
+      const rankedCities = analytics.map(
+        (city, index) => ({
+          ...city,
+          rank: index + 1,
+        }),
+      );
 
-    return res.status(500).json({
-      message: "Failed to generate weather analytics",
-    });
-  }
-});
+      return res.json({
+        count: rankedCities.length,
+        cities: rankedCities,
+      });
+    } catch (error) {
+      console.error(
+        "Failed to generate weather analytics:",
+        error,
+      );
 
-app.get("/api/cache/status", checkJwt, (req, res) => {
-  const status = getCacheStatus();
+      return res.status(500).json({
+        message:
+          "Failed to generate weather analytics",
+      });
+    }
+  },
+);
 
-  return res.json(status);
-});
 
-// Error handler
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  if (err.status === 401) {
-    return res.status(401).json({
-      status: 401,
-      message: "Unauthorized",
-    });
-  }
+/* =========================================================
+   PROTECTED CACHE DEBUG ENDPOINT
+========================================================= */
 
-  console.error("Server error:", err);
+/**
+ * Displays cache HIT/MISS and TTL information.
+ */
+app.get(
+  "/api/cache/status",
+  checkJwt,
+  (_req, res) => {
+    return res.json(getCacheStatus());
+  },
+);
 
-  return res.status(err.status || 500).json({
-    status: err.status || 500,
-    message: "Internal server error",
+
+/* =========================================================
+   404 HANDLER
+========================================================= */
+
+app.use((_req, res) => {
+  return res.status(404).json({
+    status: 404,
+    message: "Route not found",
   });
 });
 
+
+/* =========================================================
+   GLOBAL ERROR HANDLER
+========================================================= */
+
+app.use(
+  (
+    err: unknown,
+    _req: Request,
+    res: Response,
+    _next: NextFunction,
+  ) => {
+    const error = err as {
+      status?: number;
+      statusCode?: number;
+      message?: string;
+    };
+
+    const statusCode =
+      error.statusCode ?? error.status ?? 500;
+
+    if (statusCode === 401) {
+      return res.status(401).json({
+        status: 401,
+        message: "Unauthorized",
+      });
+    }
+
+    console.error("Server error:", err);
+
+    return res.status(statusCode).json({
+      status: statusCode,
+      message: "Internal server error",
+    });
+  },
+);
+
+
+/* =========================================================
+   START SERVER
+========================================================= */
+
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(
+    `Server running on http://localhost:${PORT}`,
+  );
 });
