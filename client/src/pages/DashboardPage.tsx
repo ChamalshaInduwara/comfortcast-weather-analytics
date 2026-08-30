@@ -10,6 +10,10 @@ function DashboardPage() {
   const [cities, setCities] = useState<WeatherCity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<
+    "rank" | "temperature-high" | "temperature-low" | "name"
+  >("rank");
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem("comfortcast-theme") === "dark";
   });
@@ -62,6 +66,27 @@ function DashboardPage() {
       },
     });
   };
+
+  const displayedCities = [...cities]
+    .filter((city) =>
+      city.cityName.toLowerCase().includes(search.toLowerCase()),
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "temperature-high":
+          return b.temperature - a.temperature;
+
+        case "temperature-low":
+          return a.temperature - b.temperature;
+
+        case "name":
+          return a.cityName.localeCompare(b.cityName);
+
+        case "rank":
+        default:
+          return a.rank - b.rank;
+      }
+    });
 
   if (loading) {
     return (
@@ -132,13 +157,53 @@ function DashboardPage() {
         </div>
       </section>
 
+      <div className="dashboard-controls">
+        <div className="control-group">
+          <label htmlFor="city-search">Filter cities</label>
+
+          <input
+            id="city-search"
+            type="text"
+            placeholder="Search by city..."
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+          />
+        </div>
+
+        <div className="control-group">
+          <label htmlFor="city-sort">Sort by</label>
+
+          <select
+            id="city-sort"
+            value={sortBy}
+            onChange={(event) =>
+              setSortBy(
+                event.target.value as
+                  | "rank"
+                  | "temperature-high"
+                  | "temperature-low"
+                  | "name",
+              )
+            }
+          >
+            <option value="rank">Comfort ranking</option>
+
+            <option value="temperature-high">Temperature: High to Low</option>
+
+            <option value="temperature-low">Temperature: Low to High</option>
+
+            <option value="name">City name: A–Z</option>
+          </select>
+        </div>
+      </div>
+
       {cities.length === 0 ? (
         <div className="page-message">
           <p>No weather data available.</p>
         </div>
       ) : (
         <section className="city-grid">
-          {cities.map((city) => (
+          {displayedCities.map((city) => (
             <CityCard key={city.cityId} city={city} />
           ))}
         </section>
