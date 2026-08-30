@@ -309,6 +309,90 @@ a:focus-visible {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
+.sort-dropdown {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.sort-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #172033;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sort-dropdown-trigger:focus-visible {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.sort-dropdown-trigger > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sort-dropdown-chevron {
+  flex: 0 0 auto;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.sort-dropdown-menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  display: grid;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 12px 24px rgba(30, 41, 59, 0.12);
+}
+
+.sort-dropdown-option {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 0;
+  background: #ffffff;
+  color: #172033;
+  font: inherit;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.sort-dropdown-option:hover,
+.sort-dropdown-option[aria-selected="true"] {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
 body.dark-mode .dashboard-controls {
   border-color: #334155;
   background: #1e293b;
@@ -323,6 +407,24 @@ body.dark-mode .control-group select {
   border-color: #475569;
   background: #0f172a;
   color: #e2e8f0;
+}
+
+body.dark-mode .sort-dropdown-trigger,
+body.dark-mode .sort-dropdown-menu,
+body.dark-mode .sort-dropdown-option {
+  border-color: #475569;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark-mode .sort-dropdown-chevron {
+  color: #94a3b8;
+}
+
+body.dark-mode .sort-dropdown-option:hover,
+body.dark-mode .sort-dropdown-option[aria-selected="true"] {
+  background: #172554;
+  color: #bfdbfe;
 }
 
 .no-results {

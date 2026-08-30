@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import CityCard from "../components/CityCard";
@@ -11,14 +11,123 @@ const TemperatureTrendSection = lazy(
   () => import("../components/TemperatureTrendSection"),
 );
 
+const SORT_OPTIONS = [
+  { value: "rank", label: "Comfort ranking" },
+  { value: "temperature-high", label: "Temperature: High to Low" },
+  { value: "temperature-low", label: "Temperature: Low to High" },
+  { value: "name", label: "City name: A–Z" },
+] as const;
+
+type SortOption = (typeof SORT_OPTIONS)[number]["value"];
+
+interface SortDropdownProps {
+  value: SortOption;
+  onChange: (value: SortOption) => void;
+}
+
+function SortDropdown({ value, onChange }: SortDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const selectedOption = SORT_OPTIONS.find((option) => option.value === value);
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!dropdownRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, []);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    const selectedIndex = SORT_OPTIONS.findIndex(
+      (option) => option.value === value,
+    );
+
+    if (event.key === "Escape") {
+      setIsOpen(false);
+      return;
+    }
+
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+
+      const direction = event.key === "ArrowDown" ? 1 : -1;
+      const nextIndex =
+        (selectedIndex + direction + SORT_OPTIONS.length) % SORT_OPTIONS.length;
+
+      onChange(SORT_OPTIONS[nextIndex].value);
+      setIsOpen(true);
+      return;
+    }
+
+    if (event.key === "Home" || event.key === "End") {
+      event.preventDefault();
+
+      const nextIndex = event.key === "Home" ? 0 : SORT_OPTIONS.length - 1;
+
+      onChange(SORT_OPTIONS[nextIndex].value);
+      setIsOpen(true);
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setIsOpen((open) => !open);
+    }
+  };
+
+  return (
+    <div ref={dropdownRef} className="sort-dropdown">
+      <button
+        type="button"
+        id="city-sort"
+        className="sort-dropdown-trigger"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((open) => !open)}
+        onKeyDown={handleKeyDown}
+      >
+        <span>{selectedOption?.label}</span>
+        <span className="sort-dropdown-chevron" aria-hidden="true">
+          ▾
+        </span>
+      </button>
+
+      {isOpen && (
+        <div className="sort-dropdown-menu" role="listbox" aria-label="Sort by">
+          {SORT_OPTIONS.map((option) => (
+            <button
+              type="button"
+              role="option"
+              aria-selected={option.value === value}
+              className="sort-dropdown-option"
+              key={option.value}
+              onClick={() => {
+                onChange(option.value);
+                setIsOpen(false);
+              }}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function DashboardPage() {
   const [cities, setCities] = useState<WeatherCity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortBy, setSortBy] = useState<
-    "rank" | "temperature-high" | "temperature-low" | "name"
-  >("rank");
+  const [sortBy, setSortBy] = useState<SortOption>("rank");
   const { getAccessTokenSilently, logout, user } = useAuth0();
   const { darkMode, toggleTheme } = useTheme();
 
@@ -221,27 +330,7 @@ function DashboardPage() {
         <div className="control-group">
           <label htmlFor="city-sort">Sort by</label>
 
-          <select
-            id="city-sort"
-            value={sortBy}
-            onChange={(event) =>
-              setSortBy(
-                event.target.value as
-                  | "rank"
-                  | "temperature-high"
-                  | "temperature-low"
-                  | "name",
-              )
-            }
-          >
-            <option value="rank">Comfort ranking</option>
-
-            <option value="temperature-high">Temperature: High to Low</option>
-
-            <option value="temperature-low">Temperature: Low to High</option>
-
-            <option value="name">City name: A–Z</option>
-          </select>
+          <SortDropdown value={sortBy} onChange={setSortBy} />
         </div>
       </div>
 
