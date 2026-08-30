@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import CityCard from "../components/CityCard";
@@ -11,7 +11,7 @@ function DashboardPage() {
   const [cities, setCities] = useState<WeatherCity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<
     "rank" | "temperature-high" | "temperature-low" | "name"
   >("rank");
@@ -68,11 +68,12 @@ function DashboardPage() {
     });
   };
 
-  const displayedCities = [...cities]
-    .filter((city) =>
-      city.cityName.toLowerCase().includes(search.toLowerCase()),
-    )
-    .sort((a, b) => {
+  const displayedCities = useMemo(() => {
+    const filteredCities = cities.filter((city) =>
+      city.cityName.toLowerCase().includes(searchTerm.trim().toLowerCase()),
+    );
+
+    return [...filteredCities].sort((a, b) => {
       switch (sortBy) {
         case "temperature-high":
           return b.temperature - a.temperature;
@@ -88,6 +89,7 @@ function DashboardPage() {
           return a.rank - b.rank;
       }
     });
+  }, [cities, searchTerm, sortBy]);
 
   if (loading) {
     return (
@@ -166,10 +168,10 @@ function DashboardPage() {
 
           <input
             id="city-search"
-            type="text"
-            placeholder="Search by city..."
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            type="search"
+            placeholder="Search city..."
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
           />
         </div>
 
@@ -203,6 +205,11 @@ function DashboardPage() {
       {cities.length === 0 ? (
         <div className="page-message">
           <p>No weather data available.</p>
+        </div>
+      ) : displayedCities.length === 0 ? (
+        <div className="no-results">
+          <h3>No cities found</h3>
+          <p>Try searching with a different city name.</p>
         </div>
       ) : (
         <section className="city-grid">

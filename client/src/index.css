@@ -261,6 +261,37 @@ body.dark-mode .control-group select {
   color: #e2e8f0;
 }
 
+.no-results {
+  padding: 50px 20px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 18px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.no-results h3 {
+  margin: 0 0 8px;
+  color: #172033;
+}
+
+.no-results p {
+  margin: 0;
+  color: #687386;
+}
+
+body.dark-mode .no-results {
+  border-color: #475569;
+  background: #1e293b;
+}
+
+body.dark-mode .no-results h3 {
+  color: #f8fafc;
+}
+
+body.dark-mode .no-results p {
+  color: #94a3b8;
+}
+
 @media screen and (max-width: 600px) {
   .dashboard-controls {
     flex-direction: column;
