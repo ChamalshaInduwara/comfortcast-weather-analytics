@@ -46,7 +46,6 @@ a:focus-visible {
   outline-offset: 3px;
 }
 
-
 /* =========================================================
    GENERAL PAGE STATES
 ========================================================= */
@@ -72,7 +71,6 @@ a:focus-visible {
 .error-message {
   color: #b91c1c;
 }
-
 
 /* =========================================================
    DASHBOARD
@@ -115,7 +113,6 @@ a:focus-visible {
   color: #687386;
   line-height: 1.7;
 }
-
 
 /* =========================================================
    DASHBOARD USER SECTION
@@ -184,7 +181,6 @@ a:focus-visible {
   transform: translateY(-1px);
 }
 
-
 /* =========================================================
    RANKING
 ========================================================= */
@@ -202,7 +198,6 @@ a:focus-visible {
   margin: 0;
   color: #687386;
 }
-
 
 /* =========================================================
    CITY GRID
@@ -308,7 +303,6 @@ a:focus-visible {
   font-size: 0.95rem;
 }
 
-
 /* =========================================================
    PROFESSIONAL LOGIN PAGE
 ========================================================= */
@@ -345,7 +339,6 @@ a:focus-visible {
   box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
 }
 
-
 /* =========================================================
    LOGIN LEFT PANEL
 ========================================================= */
@@ -370,12 +363,7 @@ a:focus-visible {
       rgba(96, 165, 250, 0.3),
       transparent 30%
     ),
-    linear-gradient(
-      145deg,
-      #0f172a 0%,
-      #172554 45%,
-      #1d4ed8 100%
-    );
+    linear-gradient(145deg, #0f172a 0%, #172554 45%, #1d4ed8 100%);
 }
 
 .auth-visual::before {
@@ -512,7 +500,6 @@ a:focus-visible {
   box-shadow: 0 0 12px rgba(74, 222, 128, 0.7);
 }
 
-
 /* =========================================================
    LOGIN RIGHT PANEL
 ========================================================= */
@@ -646,7 +633,6 @@ a:focus-visible {
   text-align: center;
 }
 
-
 /* =========================================================
    LARGE TABLET / SMALL LAPTOP
    1024px AND BELOW
@@ -687,7 +673,6 @@ a:focus-visible {
   }
 }
 
-
 /* =========================================================
    TABLET
    900px AND BELOW
@@ -721,7 +706,6 @@ a:focus-visible {
     max-width: 500px;
   }
 }
-
 
 /* =========================================================
    TABLET / MOBILE
@@ -772,7 +756,6 @@ a:focus-visible {
     gap: 10px;
   }
 }
-
 
 /* =========================================================
    MOBILE LOGIN
@@ -855,7 +838,6 @@ a:focus-visible {
     margin-top: 24px;
   }
 }
-
 
 /* =========================================================
    SMALL MOBILE
@@ -954,7 +936,6 @@ a:focus-visible {
   }
 }
 
-
 /* =========================================================
    VERY SMALL MOBILE
    360px AND BELOW
@@ -1013,4 +994,98 @@ a:focus-visible {
     gap: 10px;
     padding: 12px;
   }
+}
+
+/* =========================================================
+   THEME BUTTON
+========================================================= */
+
+.theme-button {
+  padding: 10px 14px;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #172033;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.theme-button:hover {
+  background: #f8fafc;
+}
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+body.dark-mode {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark-mode .dashboard {
+  color: #e2e8f0;
+}
+
+body.dark-mode .dashboard-header h1,
+body.dark-mode .ranking-heading h2,
+body.dark-mode .city-card h2 {
+  color: #f8fafc;
+}
+
+body.dark-mode .dashboard-subtitle,
+body.dark-mode .ranking-heading p,
+body.dark-mode .weather-description,
+body.dark-mode .user-email {
+  color: #94a3b8;
+}
+
+body.dark-mode .city-card,
+body.dark-mode .city-count {
+  border-color: #334155;
+  background: #1e293b;
+  box-shadow: none;
+}
+
+body.dark-mode .city-card:hover {
+  border-color: #475569;
+  box-shadow: none;
+}
+
+body.dark-mode .weather-detail {
+  background: #0f172a;
+}
+
+body.dark-mode .weather-detail span {
+  color: #94a3b8;
+}
+
+body.dark-mode .weather-detail strong {
+  color: #e2e8f0;
+}
+
+body.dark-mode .rank-badge {
+  background: #172554;
+  color: #93c5fd;
+}
+
+body.dark-mode .comfort-score {
+  background: #052e16;
+  color: #86efac;
+}
+
+body.dark-mode .logout-button,
+body.dark-mode .theme-button {
+  border-color: #475569;
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+body.dark-mode .logout-button:hover,
+body.dark-mode .theme-button:hover {
+  background: #334155;
 }

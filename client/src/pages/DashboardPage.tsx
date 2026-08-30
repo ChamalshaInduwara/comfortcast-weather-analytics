@@ -10,8 +10,21 @@ function DashboardPage() {
   const [cities, setCities] = useState<WeatherCity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem("comfortcast-theme") === "dark";
+  });
 
   const { getAccessTokenSilently, logout, user } = useAuth0();
+
+  useEffect(() => {
+    document.body.classList.toggle("dark-mode", darkMode);
+
+    localStorage.setItem("comfortcast-theme", darkMode ? "dark" : "light");
+
+    return () => {
+      document.body.classList.remove("dark-mode");
+    };
+  }, [darkMode]);
 
   useEffect(() => {
     const loadWeather = async () => {
@@ -91,6 +104,14 @@ function DashboardPage() {
 
           <div className="dashboard-actions">
             {user?.email && <span className="user-email">{user.email}</span>}
+
+            <button
+              type="button"
+              className="theme-button"
+              onClick={() => setDarkMode((current) => !current)}
+            >
+              {darkMode ? "☀️ Light" : "🌙 Dark"}
+            </button>
 
             <button
               type="button"
