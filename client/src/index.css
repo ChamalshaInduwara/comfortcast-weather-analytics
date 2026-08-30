@@ -1158,3 +1158,161 @@ body.dark-mode .logout-button:hover,
 body.dark-mode .theme-button:hover {
   background: #334155;
 }
+
+/* =========================================================
+   TEMPERATURE TREND GRAPH
+========================================================= */
+
+.trend-card {
+  width: 100%;
+  margin-bottom: 40px;
+  padding: 24px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 8px 30px rgba(30, 41, 59, 0.05);
+}
+
+.trend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.trend-header h2 {
+  margin: 0 0 6px;
+  color: #172033;
+  font-size: 1.5rem;
+}
+
+.trend-header p:last-child {
+  margin: 0;
+  color: #687386;
+  line-height: 1.6;
+}
+
+.trend-selector {
+  flex: 0 0 220px;
+}
+
+.trend-selector label {
+  display: block;
+  margin-bottom: 7px;
+  color: #687386;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.trend-selector select {
+  width: 100%;
+  min-height: 43px;
+  padding: 0 12px;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  color: #172033;
+  cursor: pointer;
+}
+
+.trend-selector select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.trend-city-name {
+  margin-bottom: 12px;
+  color: #2563eb;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.trend-chart-wrapper {
+  width: 100%;
+  height: 320px;
+  min-width: 0;
+}
+
+.trend-state {
+  display: grid;
+  min-height: 260px;
+  place-items: center;
+  color: #687386;
+}
+
+.trend-error {
+  display: grid;
+  min-height: 180px;
+  padding: 20px;
+  place-items: center;
+  border-radius: 14px;
+  background: #fef2f2;
+  color: #b91c1c;
+  text-align: center;
+}
+
+body.dark-mode .trend-card {
+  border-color: #334155;
+  background: #1e293b;
+  box-shadow: none;
+}
+
+body.dark-mode .trend-header h2 {
+  color: #f8fafc;
+}
+
+body.dark-mode .trend-header p:last-child,
+body.dark-mode .trend-selector label,
+body.dark-mode .trend-state {
+  color: #94a3b8;
+}
+
+body.dark-mode .trend-selector select {
+  border-color: #475569;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+body.dark-mode .trend-error {
+  background: #450a0a;
+  color: #fecaca;
+}
+
+@media screen and (max-width: 768px) {
+  .trend-card {
+    margin-bottom: 30px;
+    padding: 20px;
+  }
+
+  .trend-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .trend-selector {
+    flex: none;
+    width: 100%;
+  }
+
+  .trend-chart-wrapper {
+    height: 280px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .trend-card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .trend-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .trend-chart-wrapper {
+    height: 250px;
+  }
+}

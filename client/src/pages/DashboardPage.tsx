@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth0 } from "@auth0/auth0-react";
 
 import CityCard from "../components/CityCard";
+import TemperatureTrendSection from "../components/TemperatureTrendSection";
 import { getWeatherAnalytics } from "../services/weatherApi";
 
 import type { WeatherCity } from "../types/weather";
@@ -148,6 +149,8 @@ function DashboardPage() {
           </div>
         </div>
       </header>
+
+      <TemperatureTrendSection cities={cities} />
 
       <section className="ranking-heading">
         <div>
